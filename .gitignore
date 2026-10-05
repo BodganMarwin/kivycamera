@@ -1,0 +1,29 @@
+# Entornos virtuales
+.venv/
+env/
+venv/
+ENV/
+
+# Kivy y Buildozer compilación
+.buildozer/
+bin/
+
+# Grabaciones y archivos temporales de test
+recordings/
+*.jpg
+*.png
+*.mp4
+*.log
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Configuración local de usuario
+camera_config.json
+kivy_sentinel_project.zip
+
+# IDEs
+.idea/
+.vscode/

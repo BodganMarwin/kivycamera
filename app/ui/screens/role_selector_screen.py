@@ -1,0 +1,81 @@
+from kivy.uix.screenmanager import Screen
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.graphics import Color, RoundedRectangle
+
+class RoleSelectorScreen(Screen):
+    """Pantalla inicial para seleccionar el rol del dispositivo."""
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        layout = BoxLayout(
+            orientation="vertical",
+            padding=[30, 40, 30, 40],
+            spacing=20
+        )
+
+        # Encabezado
+        title = Label(
+            text="[b]KIVY SENTINEL[/b]\nSistema Multiplataforma de Videovigilancia",
+            markup=True,
+            font_size="24sp",
+            halign="center",
+            size_hint_y=0.25
+        )
+        layout.add_widget(title)
+
+        subtitle = Label(
+            text="Selecciona el modo de operación para este dispositivo:",
+            font_size="15sp",
+            color=(0.8, 0.8, 0.8, 1),
+            size_hint_y=0.1
+        )
+        layout.add_widget(subtitle)
+
+        # Botones de selección de rol
+        btn_box = BoxLayout(orientation="vertical", spacing=20, size_hint_y=0.55)
+
+        # Opción 1: Modo Cámara Transmisora (Teléfono / Tablet)
+        btn_cam = Button(
+            text="📱  MODO CÁMARA (TRANSMISOR)\nTransformar este móvil/tablet en una cámara de seguridad",
+            font_size="16sp",
+            background_normal="",
+            background_color=(0.15, 0.5, 0.85, 1),
+            color=(1, 1, 1, 1),
+            halign="center"
+        )
+        btn_cam.bind(on_release=self.go_to_camera_mode)
+        btn_box.add_widget(btn_cam)
+
+        # Opción 2: Modo Monitor Central / NVR
+        btn_mon = Button(
+            text="🖥️  MODO MONITOR / NVR\nMonitorear múltiples cámaras y detectar ONVIF en la red",
+            font_size="16sp",
+            background_normal="",
+            background_color=(0.18, 0.65, 0.35, 1),
+            color=(1, 1, 1, 1),
+            halign="center"
+        )
+        btn_mon.bind(on_release=self.go_to_monitor_mode)
+        btn_box.add_widget(btn_mon)
+
+        layout.add_widget(btn_box)
+
+        # Pie
+        footer = Label(
+            text="Compatible con ONVIF Profile S, RTSP, MJPEG y Webcams",
+            font_size="12sp",
+            color=(0.5, 0.5, 0.5, 1),
+            size_hint_y=0.1
+        )
+        layout.add_widget(footer)
+
+        self.add_widget(layout)
+
+    def go_to_camera_mode(self, *args):
+        self.manager.current = "camera_node"
+
+    def go_to_monitor_mode(self, *args):
+        self.manager.current = "monitor"
