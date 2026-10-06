@@ -42,7 +42,15 @@ jobs:
         run: |
           yes | buildozer -v android debug
 
+      - name: Diagnóstico de Error en Caso de Fallo
+        if: failure()
+        run: |
+          echo "====================== ÚLTIMAS LÍNEAS DE ERROR ======================"
+          tail -n 100 .buildozer/android/platform/build-arm64-v8a/build/other_builds/*/*.log 2>/dev/null || true
+          echo "====================================================================="
+
       - name: Subir APK como Artefacto Descargable
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: KivySentinel-APK

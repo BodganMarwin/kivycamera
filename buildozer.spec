@@ -19,7 +19,7 @@ version = 1.0.0
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy,opencv,numpy,aiohttp,requests,qrcode
+requirements = python3,kivy,opencv,numpy,aiohttp,requests,qrcode,openssl
 
 # (str) Supported orientation (one of landscape, sensorLandscape, portrait or all)
 orientation = all
@@ -30,8 +30,8 @@ fullscreen = 0
 # (list) Permissions
 android.permissions = CAMERA,RECORD_AUDIO,INTERNET,ACCESS_NETWORK_STATE,WAKE_LOCK,FOREGROUND_SERVICE,WRITE_EXTERNAL_STORAGE,READ_EXTERNAL_STORAGE
 
-# (int) Target Android API, should be as high as possible.
-android.api = 34
+# (int) Target Android API
+android.api = 33
 
 # (int) Minimum API your APK / AAB will support.
 android.minapi = 24
