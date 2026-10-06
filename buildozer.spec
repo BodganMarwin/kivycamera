@@ -42,11 +42,11 @@ android.logcat_filters = *:S python:D
 # (bool) Copy library instead of making a libpymodules.so
 android.copy_libs = 1
 
-# (int) Android NDK version to use
-android.ndk = 25b
+# (bool) Automatically accept SDK license
+android.accept_sdk_license = True
 
-# (str) python-for-android branch to use
-p4a.branch = develop
+# (str) python-for-android branch to use (master is the stable release without broken experimental recipes)
+p4a.branch = master
 
 # (list) The Android archs to build for (arm64-v8a is the modern 64-bit standard)
 android.archs = arm64-v8a

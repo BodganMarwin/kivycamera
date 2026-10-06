@@ -40,7 +40,8 @@ jobs:
 
       - name: Compilar APK con Buildozer
         run: |
-          yes | buildozer -v android debug
+          mkdir -p ~/.android && touch ~/.android/repositories.cfg
+          buildozer -v android debug
 
       - name: Diagnóstico de Error en Caso de Fallo
         if: failure()
