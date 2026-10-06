@@ -42,8 +42,14 @@ android.logcat_filters = *:S python:D
 # (bool) Copy library instead of making a libpymodules.so
 android.copy_libs = 1
 
-# (list) The Android archs to build for, choices: armeabi-v7a, arm64-v8a, x86, x86_64
-android.archs = arm64-v8a, armeabi-v7a
+# (int) Android NDK version to use
+android.ndk = 25b
+
+# (str) python-for-android branch to use
+p4a.branch = develop
+
+# (list) The Android archs to build for (arm64-v8a is the modern 64-bit standard)
+android.archs = arm64-v8a
 
 [buildozer]
 # (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
