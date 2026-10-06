@@ -39,6 +39,8 @@ jobs:
           pip install "cython<3.0" buildozer
 
       - name: Compilar APK con Buildozer
+        env:
+          BUILD_EXTENSION: "no"
         run: |
           mkdir -p ~/.android && touch ~/.android/repositories.cfg
           buildozer -v android debug

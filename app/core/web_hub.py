@@ -7,7 +7,13 @@ import time
 from typing import Dict, Any, Optional, Callable
 import cv2
 import numpy as np
-from aiohttp import web, WSMsgType
+try:
+    from aiohttp import web, WSMsgType
+    AIOHTTP_AVAILABLE = True
+except ImportError:
+    web = None
+    WSMsgType = None
+    AIOHTTP_AVAILABLE = False
 
 from app.core.motion_detector import MotionDetector
 
@@ -332,7 +338,7 @@ MOBILE_CAMERA_HTML = """<!DOCTYPE html>
 class WebCameraDevice:
     """Representa un dispositivo móvil conectado a través del navegador web."""
 
-    def __init__(self, device_id: str, ws: web.WebSocketResponse):
+    def __init__(self, device_id: str, ws: Any = None):
         self.device_id = device_id
         self.name = f"Móvil {device_id[:4]}"
         self.ws = ws
@@ -438,10 +444,14 @@ class SentinelWebHub:
         self.devices: Dict[str, WebCameraDevice] = {}
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._thread: Optional[threading.Thread] = None
-        self._runner: Optional[web.AppRunner] = None
+        self._runner: Optional[Any] = None
         self.is_running = False
 
     def start(self) -> str:
+        if not AIOHTTP_AVAILABLE:
+            print("[SentinelWebHub] aiohttp no está disponible en este entorno.")
+            return ""
+
         if self.is_running:
             return f"http://{get_local_ip()}:{self.port}/camera"
 

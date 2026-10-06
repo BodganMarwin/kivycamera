@@ -1,20 +1,17 @@
 import asyncio
-import base64
 import json
-import random
 import threading
-import time
 from typing import Optional, Callable, Dict, Any
 import cv2
 import numpy as np
-import aiohttp
+import websockets
 
 DEFAULT_RELAY_URL = "http://192.168.1.16:8765"
 
 class SentinelSignalingClient:
     """
-    Cliente de señalización y túnel para vincular dispositivos entre redes distintas
-    usando un código de emparejamiento de 6 dígitos estilo AlfredCamera.
+    Cliente de señalización y túnel WebSocket puro (sin extensiones C problemáticas).
+    Totalmente compatible con Android, Windows, Linux y macOS.
     """
 
     def __init__(self, relay_url: str = DEFAULT_RELAY_URL):
@@ -22,8 +19,7 @@ class SentinelSignalingClient:
         self.pair_code: Optional[str] = None
         self.role: Optional[str] = None  # "camera" o "viewer"
         self.is_connected = False
-        self._ws: Optional[aiohttp.ClientWebSocketResponse] = None
-        self._session: Optional[aiohttp.ClientSession] = None
+        self._ws = None
         self._loop: Optional[asyncio.AbstractEventLoop] = None
         self._thread: Optional[threading.Thread] = None
 
@@ -60,32 +56,27 @@ class SentinelSignalingClient:
                 if self.on_status_changed:
                     self.on_status_changed("Conectando con servidor de relevo...")
 
-                self._session = aiohttp.ClientSession()
-                async with self._session.ws_connect(ws_url) as ws:
+                async with websockets.connect(ws_url, ping_interval=20, ping_timeout=20) as ws:
                     self._ws = ws
                     self.is_connected = True
 
                     if self.role == "camera":
-                        # Registrarse como cámara
-                        await ws.send_str(json.dumps({
+                        await ws.send(json.dumps({
                             "type": "register_camera",
                             "name": device_name
                         }))
                     elif self.role == "viewer":
-                        # Conectarse a la cámara existente
-                        await ws.send_str(json.dumps({
+                        await ws.send(json.dumps({
                             "type": "join_camera",
                             "pair_code": self.pair_code
                         }))
 
                     async for msg in ws:
-                        if msg.type == aiohttp.WSMsgType.TEXT:
-                            data = json.loads(msg.data)
+                        if isinstance(msg, str):
+                            data = json.loads(msg)
                             await self._handle_message(data, on_code_ready)
-                        elif msg.type == aiohttp.WSMsgType.BINARY:
-                            self._handle_binary_frame(msg.data)
-                        elif msg.type in (aiohttp.WSMsgType.CLOSED, aiohttp.WSMsgType.ERROR):
-                            break
+                        elif isinstance(msg, bytes):
+                            self._handle_binary_frame(msg)
 
             except Exception as e:
                 if self.on_status_changed:
@@ -93,8 +84,6 @@ class SentinelSignalingClient:
                 await asyncio.sleep(3.0)
             finally:
                 self.is_connected = False
-                if self._session:
-                    await self._session.close()
 
     async def _handle_message(self, data: Dict[str, Any], on_code_ready):
         msg_type = data.get("type")
@@ -135,29 +124,28 @@ class SentinelSignalingClient:
 
     def send_frame(self, frame_bgr: np.ndarray, quality: int = 65):
         """Envía un fotograma desde la cámara hacia el visor a través del túnel."""
-        if not self.is_connected or self._ws is None or self._ws.closed:
+        if not self.is_connected or self._ws is None:
             return
         
-        # Redimensionar y comprimir a JPEG para optimizar datos móviles
         params = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
         success, encoded = cv2.imencode('.jpg', frame_bgr, params)
         if success and self._loop:
             asyncio.run_coroutine_threadsafe(
-                self._ws.send_bytes(encoded.tobytes()),
+                self._ws.send(encoded.tobytes()),
                 self._loop
             )
 
     def send_command(self, cmd_dict: Dict[str, Any]):
         """Envía comando desde el visor hacia la cámara remota."""
-        if not self.is_connected or self._ws is None or self._ws.closed:
+        if not self.is_connected or self._ws is None:
             return
-        msg = {
+        msg = json.dumps({
             "type": "command",
             "command": cmd_dict
-        }
+        })
         if self._loop:
             asyncio.run_coroutine_threadsafe(
-                self._ws.send_str(json.dumps(msg)),
+                self._ws.send(msg),
                 self._loop
             )
 
