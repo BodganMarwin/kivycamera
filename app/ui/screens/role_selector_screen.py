@@ -75,7 +75,38 @@ class RoleSelectorScreen(Screen):
         self.add_widget(layout)
 
     def go_to_camera_mode(self, *args):
-        self.manager.current = "camera_node"
+        try:
+            if not self.manager.has_screen("camera_node"):
+                from app.ui.screens.camera_node_screen import CameraNodeScreen
+                self.manager.add_widget(CameraNodeScreen(name="camera_node"))
+            self.manager.current = "camera_node"
+        except Exception as e:
+            import traceback
+            self._show_error_popup("Error al cargar Modo Cámara", traceback.format_exc())
 
     def go_to_monitor_mode(self, *args):
-        self.manager.current = "monitor"
+        try:
+            if not self.manager.has_screen("monitor"):
+                from app.ui.screens.monitor_screen import MonitorScreen
+                self.manager.add_widget(MonitorScreen(name="monitor"))
+            self.manager.current = "monitor"
+        except Exception as e:
+            import traceback
+            self._show_error_popup("Error al cargar Modo Monitor", traceback.format_exc())
+
+    def _show_error_popup(self, title: str, error_text: str):
+        from kivy.uix.popup import Popup
+        from kivy.uix.scrollview import ScrollView
+        from kivy.uix.label import Label
+        sv = ScrollView()
+        lbl = Label(
+            text=f"[b][color=ff3333]{title}[/color][/b]\n\n{error_text}",
+            markup=True,
+            size_hint_y=None,
+            font_size="13sp",
+            padding=(15, 15)
+        )
+        lbl.bind(texture_size=lambda inst, val: setattr(inst, 'height', max(val[1], 300)))
+        sv.add_widget(lbl)
+        popup = Popup(title="Detalle del Error", content=sv, size_hint=(0.9, 0.8))
+        popup.open()
