@@ -5,59 +5,80 @@ import traceback
 # Configurar backend de ventana y logger antes de importar Kivy
 os.environ["KIVY_NO_ARGS"] = "1"
 
-# Capturar cualquier excepción no controlada y escribirla a un archivo de diagnóstico
+# Capturar y registrar diagnóstico en múltiples rutas de almacenamiento accesibles en Android
+def log_diagnostic(msg: str):
+    print(f"[SENTINEL DIAG]: {msg}", flush=True)
+    paths = [
+        "/storage/emulated/0/Download/kivy_crash.log",
+        "/sdcard/Download/kivy_crash.log",
+        "/storage/emulated/0/Android/data/org.sentinel.kivysentinel/files/kivy_crash.log",
+        "kivy_crash.log"
+    ]
+    for p in paths:
+        try:
+            d = os.path.dirname(p)
+            if d and not os.path.exists(d):
+                os.makedirs(d, exist_ok=True)
+            with open(p, "a", encoding="utf-8") as f:
+                f.write(msg + "\n")
+        except Exception:
+            pass
+
+log_diagnostic("=== KIVY SENTINEL: INICIO DE MAIN.PY ===")
+
 def _global_exception_handler(exctype, value, tb):
     err = "".join(traceback.format_exception(exctype, value, tb))
-    print("[CRASH TRACEBACK]:", err)
-    try:
-        with open("kivy_crash.log", "w", encoding="utf-8") as f:
-            f.write(err)
-    except Exception:
-        pass
+    log_diagnostic(f"[CRASH TRACEBACK NO CONTROLADO]:\n{err}")
     sys.__excepthook__(exctype, value, tb)
 
 sys.excepthook = _global_exception_handler
 
-from kivy.app import App
-from kivy.core.window import Window
-from kivy.uix.screenmanager import ScreenManager, FadeTransition
-from kivy.utils import platform
-from kivy.clock import Clock
+try:
+    log_diagnostic("Importando modulos base de Kivy...")
+    from kivy.app import App
+    from kivy.uix.screenmanager import ScreenManager, FadeTransition
+    from kivy.utils import platform
+    from kivy.clock import Clock
+    log_diagnostic("Modulos base de Kivy importados correctamente.")
+except Exception:
+    err = traceback.format_exc()
+    log_diagnostic(f"ERROR CRITICO AL IMPORTAR KIVY:\n{err}")
+    raise
 
 class KivySentinelApp(App):
     """Aplicación principal Kivy Sentinel."""
 
     def build(self):
+        log_diagnostic("Iniciando KivySentinelApp.build()...")
         try:
             self.title = "Kivy Sentinel - Videovigilancia Multiplataforma"
 
-            # Configurar tamaño de ventana en escritorio
+            # Configurar tamaño de ventana en escritorio de forma diferida
             if platform not in ("android", "ios"):
+                from kivy.core.window import Window
                 Window.size = (960, 640)
                 Window.minimum_width, Window.minimum_height = (640, 480)
 
             # Importar pantalla inicial de forma segura
+            log_diagnostic("Cargando RoleSelectorScreen...")
             from app.ui.screens.role_selector_screen import RoleSelectorScreen
 
             # Gestor de Pantallas: cargamos inicialmente sólo el selector de roles
             # para arranque ultrarrápido y sin sobrecarga en el splash screen.
             sm = ScreenManager(transition=FadeTransition(duration=0.2))
             sm.add_widget(RoleSelectorScreen(name="role_selector"))
+            log_diagnostic("RoleSelectorScreen anadido al ScreenManager.")
 
             # Solicitar permisos en Android de manera diferida, tras inicializar la ventana y OpenGL
             if platform == "android":
-                Clock.schedule_once(self._request_android_permissions, 1.2)
+                Clock.schedule_once(self._request_android_permissions, 1.5)
 
+            log_diagnostic("KivySentinelApp.build() completado con exito.")
             return sm
 
         except Exception:
             err = traceback.format_exc()
-            print("[Kivy Sentinel] Error durante build():", err)
-            try:
-                with open("kivy_crash.log", "w", encoding="utf-8") as f:
-                    f.write(err)
-            except Exception:
-                pass
+            log_diagnostic(f"ERROR DURANTE build():\n{err}")
 
             from kivy.uix.scrollview import ScrollView
             from kivy.uix.label import Label
@@ -93,4 +114,11 @@ class KivySentinelApp(App):
                 screen.on_leave()
 
 if __name__ == "__main__":
-    KivySentinelApp().run()
+    try:
+        log_diagnostic("Llamando a KivySentinelApp().run()...")
+        KivySentinelApp().run()
+        log_diagnostic("KivySentinelApp ha finalizado normalmente.")
+    except Exception:
+        err = traceback.format_exc()
+        log_diagnostic(f"CRASH FATAL EN App.run():\n{err}")
+        raise
