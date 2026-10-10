@@ -144,8 +144,18 @@ class KivyCameraWidget(BoxLayout):
         motion_badge = "⚠️ MOVIMIENTO " if self.has_motion else ""
         self.lbl_info.text = f"{rec_badge}{motion_badge}{self.camera_name} | {self.fps_text}"
 
+        # Normalizar canal de color a BGR
+        if len(frame.shape) == 2:
+            frame_bgr = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+        elif len(frame.shape) == 3 and frame.shape[2] == 1:
+            frame_bgr = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+        elif len(frame.shape) == 3 and frame.shape[2] == 4:
+            frame_bgr = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+        else:
+            frame_bgr = frame
+
         # Voltear verticalmente para textura OpenGL Kivy
-        flipped = cv2.flip(frame, 0)
+        flipped = cv2.flip(frame_bgr, 0)
         h, w = flipped.shape[:2]
 
         texture = Texture.create(size=(w, h), colorfmt='bgr')

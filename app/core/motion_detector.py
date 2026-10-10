@@ -37,12 +37,25 @@ class MotionDetector:
         else:
             small_frame = frame
 
-        gray = cv2.cvtColor(small_frame, cv2.COLOR_BGR2GRAY)
+        # Determinar canal y convertir a escala de grises de forma segura
+        if len(small_frame.shape) == 2:
+            gray = small_frame
+            annotated_frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+        elif len(small_frame.shape) == 3 and small_frame.shape[2] == 1:
+            gray = small_frame[:, :, 0]
+            annotated_frame = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+        elif len(small_frame.shape) == 3 and small_frame.shape[2] == 4:
+            gray = cv2.cvtColor(small_frame, cv2.COLOR_BGRA2GRAY)
+            annotated_frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+        else:
+            gray = cv2.cvtColor(small_frame, cv2.COLOR_BGR2GRAY)
+            annotated_frame = frame.copy()
+
         gray = cv2.GaussianBlur(gray, (21, 21), 0)
 
         if self.avg_frame is None:
             self.avg_frame = gray.astype("float")
-            return False, [], frame
+            return False, [], annotated_frame
 
         # Acumular media móvil del fondo
         cv2.accumulateWeighted(gray, self.avg_frame, self.history_weight)
@@ -56,7 +69,6 @@ class MotionDetector:
 
         motion_detected = False
         boxes = []
-        annotated_frame = frame.copy()
 
         inv_scale = 1.0 / scale if scale != 1.0 else 1.0
 

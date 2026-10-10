@@ -42,11 +42,11 @@ jobs:
         run: |
           mkdir -p .buildozer/android/platform
           git clone --depth 1 -b master https://github.com/kivy/python-for-android.git .buildozer/android/platform/python-for-android
-          sed -i 's/python_depends = .*/python_depends = []/g' .buildozer/android/platform/python-for-android/pythonforandroid/recipes/kivy/__init__.py
+          sed -i "s/python_depends = .*/python_depends = ['filetype']/g" .buildozer/android/platform/python-for-android/pythonforandroid/recipes/kivy/__init__.py
           cd .buildozer/android/platform/python-for-android
           git config user.email "ci@sentinel.org"
           git config user.name "CI"
-          git commit -am "Disable unused kivy python_depends to avoid charset-normalizer cross-compilation failure"
+          git commit -am "Keep filetype dependency for kivy image support and remove heavy wheel deps"
 
       - name: Compilar APK con Buildozer
         env:

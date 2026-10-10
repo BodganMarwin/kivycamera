@@ -16,48 +16,57 @@ class RoleSelectorScreen(Screen):
             spacing=20
         )
 
-        # Encabezado
+        # Encabezado con ajuste de texto responsivo
         title = Label(
-            text="[b]KIVY SENTINEL[/b]\nSistema Multiplataforma de Videovigilancia",
+            text="[b]KIVY SENTINEL[/b]\nSistema de Videovigilancia",
             markup=True,
-            font_size="24sp",
+            font_size="22sp",
             halign="center",
-            size_hint_y=0.25
+            valign="middle",
+            size_hint_y=0.22
         )
+        title.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0] - 20, None)))
         layout.add_widget(title)
 
         subtitle = Label(
             text="Selecciona el modo de operación para este dispositivo:",
-            font_size="15sp",
+            font_size="14sp",
             color=(0.8, 0.8, 0.8, 1),
+            halign="center",
+            valign="middle",
             size_hint_y=0.1
         )
+        subtitle.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0] - 20, None)))
         layout.add_widget(subtitle)
 
         # Botones de selección de rol
-        btn_box = BoxLayout(orientation="vertical", spacing=20, size_hint_y=0.55)
+        btn_box = BoxLayout(orientation="vertical", spacing=20, size_hint_y=0.58)
 
         # Opción 1: Modo Cámara Transmisora (Teléfono / Tablet)
         btn_cam = Button(
-            text="📱  MODO CÁMARA (TRANSMISOR)\nTransformar este móvil/tablet en una cámara de seguridad",
-            font_size="16sp",
+            text="[ MODO CÁMARA / TRANSMISOR ]\nTransformar este móvil en una cámara de seguridad",
+            font_size="15sp",
             background_normal="",
             background_color=(0.15, 0.5, 0.85, 1),
             color=(1, 1, 1, 1),
-            halign="center"
+            halign="center",
+            valign="middle"
         )
+        btn_cam.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0] - 30, None)))
         btn_cam.bind(on_release=self.go_to_camera_mode)
         btn_box.add_widget(btn_cam)
 
         # Opción 2: Modo Monitor Central / NVR
         btn_mon = Button(
-            text="🖥️  MODO MONITOR / NVR\nMonitorear múltiples cámaras y detectar ONVIF en la red",
-            font_size="16sp",
+            text="[ MODO MONITOR / NVR ]\nMonitorear múltiples cámaras y detectar ONVIF en la red",
+            font_size="15sp",
             background_normal="",
             background_color=(0.18, 0.65, 0.35, 1),
             color=(1, 1, 1, 1),
-            halign="center"
+            halign="center",
+            valign="middle"
         )
+        btn_mon.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0] - 30, None)))
         btn_mon.bind(on_release=self.go_to_monitor_mode)
         btn_box.add_widget(btn_mon)
 
@@ -66,10 +75,12 @@ class RoleSelectorScreen(Screen):
         # Pie
         footer = Label(
             text="Compatible con ONVIF Profile S, RTSP, MJPEG y Webcams",
-            font_size="12sp",
+            font_size="11sp",
             color=(0.5, 0.5, 0.5, 1),
+            halign="center",
             size_hint_y=0.1
         )
+        footer.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0] - 20, None)))
         layout.add_widget(footer)
 
         self.add_widget(layout)

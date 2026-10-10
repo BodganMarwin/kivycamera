@@ -186,7 +186,16 @@ class CameraNodeScreen(Screen):
 
             # 2. Renderizar previsualización en pantalla si no está en ahorro
             if not self.powersave_mode:
-                flipped = cv2.flip(frame, 0)
+                if len(frame.shape) == 2:
+                    frame_bgr = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+                elif len(frame.shape) == 3 and frame.shape[2] == 1:
+                    frame_bgr = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+                elif len(frame.shape) == 3 and frame.shape[2] == 4:
+                    frame_bgr = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+                else:
+                    frame_bgr = frame
+
+                flipped = cv2.flip(frame_bgr, 0)
                 h, w = flipped.shape[:2]
                 texture = Texture.create(size=(w, h), colorfmt='bgr')
                 texture.blit_buffer(flipped.tobytes(), colorfmt='bgr', bufferfmt='ubyte')
