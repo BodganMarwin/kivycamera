@@ -340,6 +340,475 @@ MOBILE_CAMERA_HTML = """<!DOCTYPE html>
 </html>
 """
 
+# Plantilla HTML5 para el Monitor Central / Dashboard Web (Estilo AlfredCamera en Azul Marino y Blanco)
+DASHBOARD_HTML = """<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kivy Sentinel - AlfredCamera Web Hub</title>
+    <style>
+        :root {
+            --bg-dark: #0A111E;
+            --bg-nav: #0E1A2D;
+            --bg-card: #15253D;
+            --border: #223B5F;
+            --primary: #0084FF;
+            --primary-hover: #006CD6;
+            --cyan: #00D9FF;
+            --text-main: #FFFFFF;
+            --text-soft: #EBF0F7;
+            --text-muted: #9EB2CA;
+            --green: #10C278;
+            --red: #EF4242;
+            --amber: #F59E0D;
+            --purple: #8B5CF6;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            background: var(--bg-nav);
+            border-bottom: 1px solid var(--border);
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .brand-icon {
+            font-size: 26px;
+        }
+        .brand-title h1 {
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.3px;
+        }
+        .brand-title p {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .badge-live {
+            background: rgba(16, 194, 120, 0.15);
+            color: var(--green);
+            border: 1px solid rgba(16, 194, 120, 0.35);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } }
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .btn:hover { background: var(--primary-hover); }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            color: var(--text-soft);
+        }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.14); }
+        .btn-red { background: var(--red); }
+        .btn-red:hover { background: #d32f2f; }
+        
+        main {
+            flex: 1;
+            padding: 24px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .toolbar-stats {
+            display: flex;
+            gap: 18px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .toolbar-stats strong { color: var(--text-main); }
+        
+        .camera-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+        .cam-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        }
+        .cam-card:hover {
+            border-color: rgba(0, 132, 255, 0.5);
+        }
+        .cam-card.motion-active {
+            border-color: var(--amber);
+            box-shadow: 0 0 16px rgba(245, 158, 13, 0.3);
+        }
+        .cam-header {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .cam-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .cam-fps {
+            font-size: 12px;
+            color: var(--text-muted);
+            background: rgba(0, 0, 0, 0.35);
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .motion-pill {
+            background: var(--amber);
+            color: #000;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+            animation: pulse 1s infinite;
+        }
+        .video-box {
+            position: relative;
+            background: #02060D;
+            width: 100%;
+            height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .video-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .cam-controls {
+            padding: 10px 14px;
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            flex-wrap: wrap;
+        }
+        .cam-controls .btn {
+            font-size: 12px;
+            padding: 7px 11px;
+            border-radius: 6px;
+        }
+
+        /* Empty state */
+        .empty-hero {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px 24px;
+            text-align: center;
+            max-width: 620px;
+            margin: 40px auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .empty-hero h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+        }
+        .empty-hero p {
+            font-size: 14px;
+            color: var(--text-soft);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .qr-card {
+            background: #fff;
+            padding: 14px;
+            border-radius: 12px;
+            display: inline-block;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+        }
+        .qr-card img {
+            width: 200px;
+            height: 200px;
+            display: block;
+        }
+        .url-box {
+            background: rgba(0,0,0,0.35);
+            border: 1px solid var(--border);
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            color: var(--cyan);
+            margin-bottom: 24px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(4, 8, 15, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+        }
+        .modal h3 { font-size: 18px; margin-bottom: 8px; color: var(--text-main); }
+        .modal p { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--primary);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <span class="brand-icon">🛡️</span>
+            <div class="brand-title">
+                <h1>KIVY SENTINEL</h1>
+                <p>AlfredCamera Web Hub</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="badge-live"><div class="pulse-dot"></div> EN LÍNEA</div>
+            <button class="btn btn-secondary" onclick="openQrModal()">📱 Vincular Móvil</button>
+            <a href="/camera" target="_blank" class="btn">📷 Transmisor Web</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="toolbar">
+            <div class="toolbar-stats">
+                <div>Cámaras en vivo: <strong id="cam-count">0</strong></div>
+                <div>IP Local: <strong id="local-ip">--</strong></div>
+                <div>Puerto: <strong id="local-port">--</strong></div>
+            </div>
+            <div>
+                <button class="btn btn-secondary" onclick="loadDevices()">🔄 Actualizar</button>
+            </div>
+        </div>
+
+        <div id="camera-container"></div>
+    </main>
+
+    <div class="modal-overlay" id="qr-modal" onclick="closeQrModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3>Vincular Teléfono o Tablet</h3>
+            <p>Escanea este código QR con la cámara de tu smartphone para transmitir video en vivo sin instalar nada.</p>
+            <div class="qr-card">
+                <img src="/qr" alt="Código QR">
+            </div>
+            <div class="url-box" id="modal-url">http://...</div>
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button class="btn" onclick="copyUrl()">Copiar Enlace</button>
+                <button class="btn btn-secondary" onclick="closeQrModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const container = document.getElementById('camera-container');
+        const camCountEl = document.getElementById('cam-count');
+        const localIpEl = document.getElementById('local-ip');
+        const localPortEl = document.getElementById('local-port');
+        const modalUrlEl = document.getElementById('modal-url');
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 2500);
+        }
+
+        function openQrModal() {
+            document.getElementById('qr-modal').style.display = 'flex';
+        }
+        function closeQrModal() {
+            document.getElementById('qr-modal').style.display = 'none';
+        }
+        function copyUrl() {
+            const url = modalUrlEl.innerText;
+            navigator.clipboard.writeText(url).then(() => showToast('¡Enlace copiado al portapapeles!'));
+        }
+
+        async function triggerAction(action, devId) {
+            try {
+                const res = await fetch(`/api/${action}/${devId}`);
+                const data = await res.json();
+                showToast(data.message || 'Comando enviado');
+            } catch (e) {
+                showToast('Error ejecutando comando');
+            }
+        }
+
+        async function loadDevices() {
+            try {
+                const res = await fetch('/api/devices');
+                const data = await res.json();
+                
+                localIpEl.innerText = data.local_ip;
+                localPortEl.innerText = data.port;
+                modalUrlEl.innerText = `http://${data.local_ip}:${data.port}/camera`;
+                camCountEl.innerText = data.devices.length;
+
+                renderDevices(data.devices, data.local_ip, data.port);
+            } catch (e) {
+                console.error('Error cargando dispositivos:', e);
+            }
+        }
+
+        function renderDevices(devices, ip, port) {
+            if (devices.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-hero">
+                        <h2>No hay cámaras conectadas actualmente</h2>
+                        <p>Convierte cualquier smartphone (Android / iPhone) o tablet en una cámara de vigilancia en segundos sin instalar ninguna aplicación:</p>
+                        <div class="qr-card">
+                            <img src="/qr" alt="QR Cámara">
+                        </div>
+                        <div style="margin-bottom: 20px;">
+                            <div class="url-box">http://${ip}:${port}/camera</div>
+                        </div>
+                        <div style="display:flex; justify-content:center; gap:12px; flex-wrap:wrap;">
+                            <a href="/camera" target="_blank" class="btn">📷 Iniciar Transmisor en este Navegador</a>
+                            <button class="btn btn-secondary" onclick="openQrModal()">📱 Instrucciones Móvil</button>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div class="camera-grid">';
+            devices.forEach(dev => {
+                const motionClass = dev.motion ? 'motion-active' : '';
+                const motionPill = dev.motion ? '<span class="motion-pill">⚠️ MOVIMIENTO</span>' : '';
+                html += `
+                    <div class="cam-card ${motionClass}">
+                        <div class="cam-header">
+                            <div class="cam-title">
+                                <span>📹</span>
+                                <span>${dev.name}</span>
+                                ${motionPill}
+                            </div>
+                            <div class="cam-fps">${dev.fps} FPS</div>
+                        </div>
+                        <div class="video-box">
+                            <img src="/stream/${dev.id}" alt="${dev.name}">
+                        </div>
+                        <div class="cam-controls">
+                            <button class="btn btn-secondary" onclick="triggerAction('torch', '${dev.id}')">🔦 Linterna</button>
+                            <button class="btn btn-secondary" onclick="triggerAction('switch', '${dev.id}')">🔄 Lente</button>
+                            <button class="btn btn-secondary" onclick="triggerAction('siren', '${dev.id}')">🚨 Sirena</button>
+                            <a href="/api/snapshot/${dev.id}" target="_blank" class="btn btn-secondary">📸 Captura</a>
+                            <button class="btn btn-red" onclick="triggerAction('disconnect', '${dev.id}')">🔌 Desvincular</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        loadDevices();
+        setInterval(loadDevices, 2500);
+    </script>
+</body>
+</html>
+"""
+
 class WebCameraDevice:
     """Representa un dispositivo móvil conectado a través del navegador web."""
 
@@ -458,24 +927,32 @@ class SentinelWebHub:
             return ""
 
         if self.is_running:
-            return f"http://{get_local_ip()}:{self.port}/camera"
+            return f"http://{get_local_ip()}:{self.port}/"
 
         self.is_running = True
         self._thread = threading.Thread(target=self._run_server, daemon=True)
         self._thread.start()
 
         local_ip = get_local_ip()
-        return f"http://{local_ip}:{self.port}/camera"
+        return f"http://{local_ip}:{self.port}/"
 
     def _run_server(self):
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
 
         app = web.Application()
+        app.router.add_get('/', self._handle_dashboard_page)
+        app.router.add_get('/monitor', self._handle_dashboard_page)
         app.router.add_get('/camera', self._handle_camera_page)
         app.router.add_get('/ws/camera', self._handle_camera_ws)
+        app.router.add_get('/stream/{device_id}', self._handle_device_stream)
+        app.router.add_get('/qr', self._handle_qr_code)
+        app.router.add_get('/api/devices', self._handle_api_devices)
         app.router.add_get('/api/siren/{device_id}', self._handle_api_siren)
         app.router.add_get('/api/torch/{device_id}', self._handle_api_torch)
+        app.router.add_get('/api/switch/{device_id}', self._handle_api_switch)
+        app.router.add_get('/api/disconnect/{device_id}', self._handle_api_disconnect)
+        app.router.add_get('/api/snapshot/{device_id}', self._handle_api_snapshot)
 
         self._runner = web.AppRunner(app)
         self._loop.run_until_complete(self._runner.setup())
@@ -483,6 +960,66 @@ class SentinelWebHub:
         self._loop.run_until_complete(site.start())
         print(f"[SentinelWebHub] Servidor activo en http://0.0.0.0:{self.port}")
         self._loop.run_forever()
+
+    async def _handle_dashboard_page(self, request):
+        return web.Response(text=DASHBOARD_HTML, content_type='text/html')
+
+    async def _handle_qr_code(self, request):
+        from app.core.qr_helper import generate_qr_image
+        url = f"http://{get_local_ip()}:{self.port}/camera"
+        qr_file = generate_qr_image(url)
+        return web.FileResponse(qr_file)
+
+    async def _handle_api_devices(self, request):
+        dev_list = []
+        for dev_id, dev in list(self.devices.items()):
+            dev_list.append({
+                "id": dev_id,
+                "name": dev.name,
+                "fps": dev.fps,
+                "motion": dev.motion_active,
+                "is_recording": dev.is_recording,
+                "stream_url": f"/stream/{dev_id}"
+            })
+        return web.json_response({
+            "devices": dev_list,
+            "local_ip": get_local_ip(),
+            "port": self.port
+        })
+
+    async def _handle_device_stream(self, request):
+        device_id = request.match_info.get('device_id')
+        dev = self.devices.get(device_id)
+        if not dev:
+            return web.Response(text="Dispositivo no encontrado", status=404)
+
+        response = web.StreamResponse(
+            status=200,
+            reason='OK',
+            headers={
+                'Content-Type': 'multipart/x-mixed-replace; boundary=frame',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'Connection': 'close',
+            }
+        )
+        await response.prepare(request)
+
+        try:
+            while dev.connected and self.is_running:
+                frame = dev.get_frame(draw_annotations=True)
+                if frame is not None:
+                    ret, jpeg = cv2.imencode('.jpg', frame, [cv2.IMWRITE_JPEG_QUALITY, 65])
+                    if ret:
+                        await response.write(
+                            b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n'
+                        )
+                await asyncio.sleep(0.04) # ~25 FPS
+        except (asyncio.CancelledError, ConnectionResetError, Exception):
+            pass
+
+        return response
 
     async def _handle_camera_page(self, request):
         return web.Response(text=MOBILE_CAMERA_HTML, content_type='text/html')
@@ -531,6 +1068,32 @@ class SentinelWebHub:
             dev.send_remote_command({"cmd": "toggle_torch"})
             return web.json_response({"status": "ok", "message": "Linterna conmutada"})
         return web.json_response({"status": "error", "message": "Dispositivo no encontrado"}, status=404)
+
+    async def _handle_api_switch(self, request):
+        device_id = request.match_info.get('device_id')
+        dev = self.devices.get(device_id)
+        if dev:
+            dev.send_remote_command({"cmd": "switch_cam"})
+            return web.json_response({"status": "ok", "message": "Lente de cámara conmutado"})
+        return web.json_response({"status": "error", "message": "Dispositivo no encontrado"}, status=404)
+
+    async def _handle_api_disconnect(self, request):
+        device_id = request.match_info.get('device_id')
+        self.disconnect_device(device_id)
+        return web.json_response({"status": "ok", "message": "Dispositivo desvinculado"})
+
+    async def _handle_api_snapshot(self, request):
+        device_id = request.match_info.get('device_id')
+        dev = self.devices.get(device_id)
+        if dev and dev.latest_frame is not None:
+            ret, jpeg = cv2.imencode('.jpg', dev.latest_frame, [cv2.IMWRITE_JPEG_QUALITY, 90])
+            if ret:
+                return web.Response(
+                    body=jpeg.tobytes(),
+                    content_type='image/jpeg',
+                    headers={'Content-Disposition': f'inline; filename="snapshot_{device_id}.jpg"'}
+                )
+        return web.Response(text="Sin fotograma disponible", status=404)
 
     def trigger_siren(self, device_id: str):
         dev = self.devices.get(device_id)
