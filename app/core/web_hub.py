@@ -957,9 +957,12 @@ class SentinelWebHub:
         self._runner = web.AppRunner(app)
         self._loop.run_until_complete(self._runner.setup())
         site = web.TCPSite(self._runner, '0.0.0.0', self.port)
-        self._loop.run_until_complete(site.start())
-        print(f"[SentinelWebHub] Servidor activo en http://0.0.0.0:{self.port}")
-        self._loop.run_forever()
+        try:
+            self._loop.run_until_complete(site.start())
+            print(f"[SentinelWebHub] Servidor activo en http://0.0.0.0:{self.port}")
+            self._loop.run_forever()
+        except OSError as e:
+            print(f"[SentinelWebHub] Puerto {self.port} ya en uso o no disponible: {e}")
 
     async def _handle_dashboard_page(self, request):
         return web.Response(text=DASHBOARD_HTML, content_type='text/html')
