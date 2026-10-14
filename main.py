@@ -53,9 +53,11 @@ class KivySentinelApp(App):
         try:
             self.title = "Kivy Sentinel - Videovigilancia Multiplataforma"
 
+            from kivy.core.window import Window
+            Window.clearcolor = (0.039, 0.067, 0.118, 1.0)
+
             # Configurar tamaño de ventana en escritorio de forma diferida
             if platform not in ("android", "ios"):
-                from kivy.core.window import Window
                 Window.size = (960, 640)
                 Window.minimum_width, Window.minimum_height = (640, 480)
 

@@ -1,89 +1,169 @@
 from kivy.uix.screenmanager import Screen
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.button import Button
 from kivy.uix.label import Label
-from kivy.graphics import Color, RoundedRectangle
+from kivy.uix.popup import Popup
+from kivy.uix.scrollview import ScrollView
+
+from app.ui.theme import (
+    BG_DARK, CARD_BG, CARD_BG_ELEVATED, PRIMARY_BLUE, NAVY_BUTTON,
+    WHITE, WHITE_SOFT, WHITE_MUTED, CYAN_ACCENT,
+    HEX_WHITE, HEX_WHITE_SOFT, HEX_CYAN, HEX_MUTED,
+    RoundedButton, CardLayout, apply_screen_background
+)
 
 class RoleSelectorScreen(Screen):
-    """Pantalla inicial para seleccionar el rol del dispositivo."""
+    """
+    Pantalla inicial de selección de rol estilo AlfredCamera.
+    Diseño refinado en Azul Marino y Blanco con tarjetas independientes.
+    """
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        apply_screen_background(self, BG_DARK)
 
-        layout = BoxLayout(
+        main_layout = BoxLayout(
             orientation="vertical",
-            padding=[30, 40, 30, 40],
-            spacing=20
+            padding=[24, 30, 24, 25],
+            spacing=16
         )
 
-        # Encabezado con ajuste de texto responsivo
-        title = Label(
-            text="[b]KIVY SENTINEL[/b]\nSistema de Videovigilancia",
+        # 1. ENCABEZADO Y LOGOTIPO DE MARCA (Estilo AlfredCamera)
+        header_box = BoxLayout(orientation="vertical", size_hint_y=0.22, spacing=4)
+
+        lbl_brand = Label(
+            text=f"[b][color={HEX_CYAN}]● SENTINEL CAM[/color][/b]",
             markup=True,
-            font_size="22sp",
+            font_size="13sp",
             halign="center",
             valign="middle",
-            size_hint_y=0.22
+            size_hint_y=0.3
         )
-        title.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0] - 20, None)))
-        layout.add_widget(title)
+        lbl_brand.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0], None)))
+        header_box.add_widget(lbl_brand)
 
-        subtitle = Label(
-            text="Selecciona el modo de operación para este dispositivo:",
-            font_size="14sp",
-            color=(0.8, 0.8, 0.8, 1),
+        lbl_title = Label(
+            text=f"[b][size=23sp][color={HEX_WHITE}]Seguridad Inteligente[/color][/size][/b]",
+            markup=True,
+            font_size="23sp",
             halign="center",
             valign="middle",
-            size_hint_y=0.1
+            size_hint_y=0.42
         )
-        subtitle.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0] - 20, None)))
-        layout.add_widget(subtitle)
+        lbl_title.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0], None)))
+        header_box.add_widget(lbl_title)
 
-        # Botones de selección de rol
-        btn_box = BoxLayout(orientation="vertical", spacing=20, size_hint_y=0.58)
-
-        # Opción 1: Modo Cámara Transmisora (Teléfono / Tablet)
-        btn_cam = Button(
-            text="[ MODO CÁMARA / TRANSMISOR ]\nTransformar este móvil en una cámara de seguridad",
-            font_size="15sp",
-            background_normal="",
-            background_color=(0.15, 0.5, 0.85, 1),
-            color=(1, 1, 1, 1),
+        lbl_subtitle = Label(
+            text=f"[color={HEX_MUTED}]¿Cómo deseas utilizar este dispositivo?[/color]",
+            markup=True,
+            font_size="13sp",
             halign="center",
-            valign="middle"
+            valign="middle",
+            size_hint_y=0.28
         )
-        btn_cam.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0] - 30, None)))
+        lbl_subtitle.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0], None)))
+        header_box.add_widget(lbl_subtitle)
+
+        main_layout.add_widget(header_box)
+
+        # 2. CONTENEDOR DE TARJETAS DE SELECCIÓN
+        cards_container = BoxLayout(orientation="vertical", spacing=14, size_hint_y=0.68)
+
+        # TARJETA 1: MODO CÁMARA (TRANSMISOR)
+        card_cam = CardLayout(
+            orientation="vertical",
+            padding=[20, 16, 20, 16],
+            spacing=10,
+            bg_color=CARD_BG_ELEVATED
+        )
+
+        lbl_cam_title = Label(
+            text=f"[b][size=16sp][color={HEX_CYAN}]● Dispositivo Cámara[/color][/size][/b]",
+            markup=True,
+            halign="left",
+            size_hint_y=None,
+            height=26
+        )
+        lbl_cam_title.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0], None)))
+        card_cam.add_widget(lbl_cam_title)
+
+        lbl_cam_desc = Label(
+            text=f"[color={HEX_WHITE_SOFT}]Transforma este teléfono en una cámara de seguridad en vivo. Genera un código de 6 dígitos para monitorear en 4G o WiFi.[/color]",
+            markup=True,
+            font_size="12sp",
+            halign="left",
+            valign="top"
+        )
+        lbl_cam_desc.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0], None)))
+        card_cam.add_widget(lbl_cam_desc)
+
+        btn_cam = RoundedButton(
+            text="INICIAR MODO CÁMARA",
+            font_size="13sp",
+            bold=True,
+            size_hint_y=None,
+            height=46,
+            bg_color=PRIMARY_BLUE,
+            radius=[12, 12, 12, 12]
+        )
         btn_cam.bind(on_release=self.go_to_camera_mode)
-        btn_box.add_widget(btn_cam)
+        card_cam.add_widget(btn_cam)
+        cards_container.add_widget(card_cam)
 
-        # Opción 2: Modo Monitor Central / NVR
-        btn_mon = Button(
-            text="[ MODO MONITOR / NVR ]\nMonitorear múltiples cámaras y detectar ONVIF en la red",
-            font_size="15sp",
-            background_normal="",
-            background_color=(0.18, 0.65, 0.35, 1),
-            color=(1, 1, 1, 1),
-            halign="center",
-            valign="middle"
+        # TARJETA 2: MODO VISOR / MONITOR (NVR)
+        card_mon = CardLayout(
+            orientation="vertical",
+            padding=[20, 16, 20, 16],
+            spacing=10,
+            bg_color=CARD_BG
         )
-        btn_mon.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0] - 30, None)))
+
+        lbl_mon_title = Label(
+            text=f"[b][size=16sp][color={HEX_WHITE}]● Dispositivo Visor / NVR[/color][/size][/b]",
+            markup=True,
+            halign="left",
+            size_hint_y=None,
+            height=26
+        )
+        lbl_mon_title.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0], None)))
+        card_mon.add_widget(lbl_mon_title)
+
+        lbl_mon_desc = Label(
+            text=f"[color={HEX_WHITE_SOFT}]Visualiza transmisiones simultáneas, vincula teléfonos por código Alfred o Web QR y detecta cámaras IP ONVIF.[/color]",
+            markup=True,
+            font_size="12sp",
+            halign="left",
+            valign="top"
+        )
+        lbl_mon_desc.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0], None)))
+        card_mon.add_widget(lbl_mon_desc)
+
+        btn_mon = RoundedButton(
+            text="ABRIR MONITOR DE CÁMARAS",
+            font_size="13sp",
+            bold=True,
+            size_hint_y=None,
+            height=46,
+            bg_color=NAVY_BUTTON,
+            radius=[12, 12, 12, 12]
+        )
         btn_mon.bind(on_release=self.go_to_monitor_mode)
-        btn_box.add_widget(btn_mon)
+        card_mon.add_widget(btn_mon)
+        cards_container.add_widget(card_mon)
 
-        layout.add_widget(btn_box)
+        main_layout.add_widget(cards_container)
 
-        # Pie
+        # 3. PIE DE PÁGINA
         footer = Label(
-            text="Compatible con ONVIF Profile S, RTSP, MJPEG y Webcams",
-            font_size="11sp",
-            color=(0.5, 0.5, 0.5, 1),
+            text=f"[color={HEX_MUTED}]P2P 4G/5G/WiFi • ONVIF Profile S • RTSP • WebRTC[/color]",
+            markup=True,
+            font_size="10sp",
             halign="center",
             size_hint_y=0.1
         )
-        footer.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0] - 20, None)))
-        layout.add_widget(footer)
+        footer.bind(size=lambda inst, val: setattr(inst, 'text_size', (val[0], None)))
+        main_layout.add_widget(footer)
 
-        self.add_widget(layout)
+        self.add_widget(main_layout)
 
     def go_to_camera_mode(self, *args):
         try:
@@ -106,18 +186,34 @@ class RoleSelectorScreen(Screen):
             self._show_error_popup("Error al cargar Modo Monitor", traceback.format_exc())
 
     def _show_error_popup(self, title: str, error_text: str):
-        from kivy.uix.popup import Popup
-        from kivy.uix.scrollview import ScrollView
-        from kivy.uix.label import Label
-        sv = ScrollView()
+        content = BoxLayout(orientation="vertical", padding=15, spacing=10)
+        sv = ScrollView(size_hint=(1, 0.8))
         lbl = Label(
-            text=f"[b][color=ff3333]{title}[/color][/b]\n\n{error_text}",
+            text=f"[b][color={HEX_WHITE}]{title}[/color][/b]\n\n{error_text}",
             markup=True,
             size_hint_y=None,
-            font_size="13sp",
-            padding=(15, 15)
+            font_size="12sp",
+            padding=(10, 10),
+            color=WHITE_SOFT
         )
         lbl.bind(texture_size=lambda inst, val: setattr(inst, 'height', max(val[1], 300)))
         sv.add_widget(lbl)
-        popup = Popup(title="Detalle del Error", content=sv, size_hint=(0.9, 0.8))
+        content.add_widget(sv)
+
+        btn_close = RoundedButton(
+            text="Cerrar",
+            size_hint_y=None,
+            height=40,
+            bg_color=PRIMARY_BLUE
+        )
+        content.add_widget(btn_close)
+
+        popup = Popup(
+            title="Aviso del Sistema",
+            title_color=WHITE,
+            content=content,
+            size_hint=(0.9, 0.8),
+            background_color=CARD_BG_ELEVATED
+        )
+        btn_close.bind(on_release=popup.dismiss)
         popup.open()

@@ -39,8 +39,8 @@ MOBILE_CAMERA_HTML = """<!DOCTYPE html>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #000;
-            color: #fff;
+            background: #0A111E;
+            color: #FFFFFF;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
@@ -53,7 +53,7 @@ MOBILE_CAMERA_HTML = """<!DOCTYPE html>
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #111;
+            background: #050B14;
         }
         video {
             width: 100%;
@@ -71,52 +71,57 @@ MOBILE_CAMERA_HTML = """<!DOCTYPE html>
             z-index: 10;
         }
         .badge {
-            background: rgba(229, 57, 53, 0.85);
-            padding: 6px 12px;
+            background: rgba(16, 194, 120, 0.9);
+            color: #ffffff;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 13px;
-            font-weight: bold;
+            font-weight: 700;
             display: flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
         .dot { width: 8px; height: 8px; background: #fff; border-radius: 50%; animation: pulse 1s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .controls {
             position: absolute;
-            bottom: 20px;
+            bottom: 25px;
             left: 0;
             right: 0;
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             padding: 0 15px;
             z-index: 10;
         }
         .btn {
-            background: rgba(30, 30, 30, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
+            background: rgba(22, 38, 62, 0.9);
+            border: 1px solid rgba(0, 132, 255, 0.4);
+            color: #FFFFFF;
             padding: 12px 18px;
             border-radius: 50px;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 600;
             display: flex;
             align-items: center;
             gap: 8px;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
             cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
         }
-        .btn:active { background: rgba(80, 80, 80, 0.9); }
+        .btn:active { background: #0084FF; border-color: #0084FF; }
         #powersave-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: #000;
+            background: #02060D;
             z-index: 999;
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: #444;
+            color: #9EB2CA;
             font-size: 14px;
             text-align: center;
             padding: 20px;

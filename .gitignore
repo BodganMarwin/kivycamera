@@ -23,6 +23,8 @@ __pycache__/
 # Configuración local de usuario
 camera_config.json
 kivy_sentinel_project.zip
+artifact.zip
+extracted_apk/
 
 # IDEs
 .idea/
